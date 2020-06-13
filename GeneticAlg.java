@@ -9,6 +9,7 @@ public class GeneticAlg {
     private ArrayList<ArrayList<Integer>> representationInMatrix;
     private Population population;
     private FileIO fileIO;
+    private Individual bestIndividual;
     private int[][] costMatrix;
     private int populationSize;
     private Random random = new Random();
@@ -39,7 +40,7 @@ public class GeneticAlg {
 
     }
 
-    public Individual getBestIndividual(){
+    public Individual getBestIndividualInCurrentGeneration(){
         int cost = Integer.MAX_VALUE;
         int index = 0;
         for(int i = 0; i < population.getIndividuals().length; i++)
@@ -47,7 +48,16 @@ public class GeneticAlg {
                 cost = population.getIndividuals()[i].totalCost;
                 index = i;
             }
+        if(bestIndividual == null)
+            bestIndividual = new Individual(population.getIndividuals()[index]);
+        else if(bestIndividual.totalCost > population.getIndividuals()[index].totalCost)
+            bestIndividual = new Individual(population.getIndividuals()[index]);
+
         return population.getIndividuals()[index];
+    }
+
+    public Individual getBestIndividual(){
+        return bestIndividual;
     }
 
     private void selection(){
@@ -77,6 +87,7 @@ public class GeneticAlg {
 
         ArrayList<ArrayList<Triplet>> routes = new ArrayList<>();
         ArrayList<ArrayList<Triplet>> routesMatrix = population.getIndividuals()[individualIndex].routesMatrix;
+        ArrayList<ArrayList<Triplet>> routesToEliminate = new ArrayList<>();
         ArrayList<Triplet> newRoute;
 
         for(int i = 0; i < routesMatrix.size(); i++){
@@ -89,18 +100,27 @@ public class GeneticAlg {
             routes.remove(routes.size() - 1);
         }
 
-        routes.sort(Comparator.comparing(ArrayList::size));
+//        routes.sort(Comparator.comparing(ArrayList::size));
 
         if(routes.size() > 0){
-            for(int i = 0; i < routes.size(); i += 2){
-                newRoute = attemptUnification(routes.get(i), routes.get(i + 1), population.getIndividuals()[individualIndex]);
 
-                if(newRoute.size() != 0){
-                    routesMatrix.remove(routes.get(i));
-                    routesMatrix.remove(routes.get(i + 1));
-                    routesMatrix.add(newRoute);
+            for(int i = 0; i < routes.size() - 1; i++)
+                for(int j = i + 1; j < routes.size(); j++){
+                    if(!routesToEliminate.contains(routes.get(i)) && !routesToEliminate.contains(routes.get(j)) ){
+                        newRoute = attemptUnification(routes.get(i), routes.get(j), population.getIndividuals()[individualIndex]);
+
+                        if(newRoute.size() != 0){
+                            routesToEliminate.add(routes.get(i));
+                            routesToEliminate.add(routes.get(j));
+                            routesMatrix.add(newRoute);
+                        }
+                    }
+
+
                 }
-            }
+
+            for (ArrayList<Triplet> triplets : routesToEliminate) routesMatrix.remove(triplets);
+
         }
 
     }
@@ -168,7 +188,8 @@ public class GeneticAlg {
         newRoute.add(route1.get(0));
 
         for(int j = 1; j < route1.size(); j++) {
-            try {
+
+            if(index < route2.size()) {
                 while (representationOutMatrix.get(newRoute.get(newRoute.size() - 1)).contains(route2.get(index)) &&
                         representationOutMatrix.get(route2.get(index)).contains(route1.get(j))) {
                     newRoute.add(route2.get(index));
@@ -176,11 +197,9 @@ public class GeneticAlg {
                     if (index == route2.size())
                         break;
                 }
-                newRoute.add(route1.get(j));
-            }catch (Exception e){
-                System.out.println(newRoute.get(newRoute.size() - 1));
-                System.out.println(route2.get(index));
             }
+            newRoute.add(route1.get(j));
+
         }
 
         if(index != route2.size()) {
