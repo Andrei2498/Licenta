@@ -1,6 +1,6 @@
+package Genetic;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Random;
 
 public class GeneticAlg {
@@ -60,6 +60,10 @@ public class GeneticAlg {
         return bestIndividual;
     }
 
+    public FileIO getFileIO(){
+        return fileIO;
+    }
+
     private void selection(){
         Individual[] newIndividuals = new Individual[populationSize];
         Individual[] populationIndividuals = population.getIndividuals();
@@ -90,17 +94,11 @@ public class GeneticAlg {
         ArrayList<ArrayList<Triplet>> routesToEliminate = new ArrayList<>();
         ArrayList<Triplet> newRoute;
 
-        for(int i = 0; i < routesMatrix.size(); i++){
-            if(rate >= random.nextDouble()){
-                routes.add(routesMatrix.get(i));
+        for (ArrayList<Triplet> routesMatrix1 : routesMatrix) {
+            if (rate >= random.nextDouble()) {
+                routes.add(routesMatrix1);
             }
         }
-
-        if(routes.size() % 2 != 0) {
-            routes.remove(routes.size() - 1);
-        }
-
-//        routes.sort(Comparator.comparing(ArrayList::size));
 
         if(routes.size() > 0){
 

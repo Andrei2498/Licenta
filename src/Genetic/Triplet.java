@@ -1,3 +1,5 @@
+package Genetic;
+
 public class Triplet{
 
     public int first;
