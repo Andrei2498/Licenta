@@ -13,7 +13,7 @@ public class Individual {
     ArrayList<Integer> depotsUsage = new ArrayList<>();
     ArrayList<Integer> depotsAvailable = new ArrayList<>();
     ArrayList<Integer> tripsUsage = new ArrayList<>();
-    FileIO fileIO;
+    public FileIO fileIO;
     int[][] costMatrix;
     int totalCost = 0;
 

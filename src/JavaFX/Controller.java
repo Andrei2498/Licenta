@@ -2,20 +2,31 @@ package JavaFX;
 
 import Genetic.GeneticAlg;
 import Genetic.Individual;
+import Genetic.Triplet;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 
 import java.io.File;
+import java.util.ArrayList;
 
 public class Controller {
+
+    private boolean algorithmRunned = false;
+
+    private Individual bestIndividualAsValue;
 
     /*-----------File variables ----------*/
     @FXML
@@ -48,24 +59,24 @@ public class Controller {
 
     @FXML
     private AnchorPane mainPane;
-
-    @FXML
-    private LineChart<Number, Number> resultsGraph;
-
-    @FXML
-    public void initialize(){
-//        NumberAxis y = new NumberAxis(2500000, 1300000, 100000);
-//        y.setLabel("Value");
-
-        XYChart.Series<Number, Number> series = new XYChart.Series<>();
-        series.getData().add(new XYChart.Data<>(1, 15000000));
-        series.getData().add(new XYChart.Data<>(2, 17000000));
-        series.getData().add(new XYChart.Data<>(3, 11000000));
-        series.getData().add(new XYChart.Data<>(4, 19000000));
-        series.getData().add(new XYChart.Data<>(5, 25000000));
-        resultsGraph.getData().add(series);
-
-    }
+//
+//    @FXML
+//    private LineChart<Number, Number> resultsGraph;
+//
+//    @FXML
+//    public void initialize(){
+////        NumberAxis y = new NumberAxis(2500000, 1300000, 100000);
+////        y.setLabel("Value");
+//
+//        XYChart.Series<Number, Number> series = new XYChart.Series<>();
+//        series.getData().add(new XYChart.Data<>(1, 15000000));
+//        series.getData().add(new XYChart.Data<>(2, 17000000));
+//        series.getData().add(new XYChart.Data<>(3, 11000000));
+//        series.getData().add(new XYChart.Data<>(4, 19000000));
+//        series.getData().add(new XYChart.Data<>(5, 25000000));
+//        resultsGraph.getData().add(series);
+//
+//    }
 
     class Genetic extends Task{
 
@@ -86,12 +97,20 @@ public class Controller {
                 numberDepots.setText(String.valueOf(geneticAlg.getFileIO().getDepots()));
                 numberTrips.setText(String.valueOf(geneticAlg.getFileIO().getTrips()));
 
-                for(int i = 0; i < numberOfGenerations; i++) {
-                    generationNumber.setText(String.valueOf(i));
+                Individual individual;
+                Individual bestIndividual;
 
+                for(int i = 0; i < numberOfGenerations; i++) {
+                    try {
+                        generationNumber.setText(String.valueOf(i));
+                    } catch (Exception e){
+                        System.out.println("sunt aici");
+                        System.out.println(e.getMessage());
+                    }
                     geneticAlg.run(join, relocate);
-                    Individual individual = geneticAlg.getBestIndividualInCurrentGeneration();
-                    Individual bestIndividual = geneticAlg.getBestIndividual();
+                    individual = geneticAlg.getBestIndividualInCurrentGeneration();
+                    bestIndividual = geneticAlg.getBestIndividual();
+                    bestIndividualAsValue = bestIndividual;
                     bestResultNow.setText(String.valueOf(individual.getTotalCost()));
                     bestResultEver.setText(String.valueOf(bestIndividual.getTotalCost()));
 
@@ -104,20 +123,46 @@ public class Controller {
                         currentGenerationBestCost = individual.getTotalCost();
                     }
 
-                    if(counter == 25 && relocate < 0.5 && join < 0.5){
+                    if(counter == 10 && relocate < 0.5 && join < 0.5){
                         join += 0.1;
                         relocate += 0.1;
                         counter = 0;
                         joinRate.setText(String.valueOf(join));
                         relocateRate.setText(String.valueOf(relocate));
                     }
-                    if(counter == 50)
+                    if(counter == 10)
                         break;
                 }
+
             }
             else errorMessage.setVisible(true);
 
+            algorithmRunned = true;
+
             return null;
+        }
+    }
+
+    @FXML
+    void onShowGraphClicked(ActionEvent event){
+        if(algorithmRunned){
+            try {
+                FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("graphPage.fxml"));
+                Parent root1 = fxmlLoader.load();
+
+                GraphController graphController = fxmlLoader.getController();
+                graphController.start(bestIndividualAsValue);
+
+                Stage stage = new Stage();
+                stage.setTitle("Genetic Graph");
+                stage.setScene(new Scene(root1));
+                stage.show();
+
+                graphController.run();
+            } catch (Exception e){
+                e.printStackTrace();
+                System.out.println("Can't load new window");
+            }
         }
     }
 
