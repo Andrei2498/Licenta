@@ -92,7 +92,7 @@ public class Individual {
                 tripIndex = tripsUsage.get(random.nextInt(tripsUsage.size()));
                 emptyArrayCounter++;
             }
-            if (emptyArrayCounter < 5)
+            if (emptyArrayCounter < 50)
                 emptyArrayCounter = 0;
             tripsUsage.remove(new Integer(tripIndex));
 

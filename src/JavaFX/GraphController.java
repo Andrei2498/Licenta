@@ -39,12 +39,6 @@ public class GraphController {
     }
 
     public void run(){
-//        Graph graph = new Graph();
-//        new Thread(graph).start();
-
-        System.out.println(graphPane.getHeight());
-        System.out.println(graphPane.getWidth());
-
         double x;
         double y;
         double radius = 3.5;
@@ -58,10 +52,11 @@ public class GraphController {
 
         for(int i = 0; i < list.size(); i++) {
             sizeList[list.get(i).size()]++;
-            if(sizeList[list.get(i).size()] == 1){
-                numberOfLevels ++;
+            if(list.get(i).size() > numberOfLevels){
+                numberOfLevels = list.get(i).size();
             }
         }
+        numberOfLevels --;
 
         spaceOnLayer = new double[numberOfLevels + 1];
         indexList = new int[numberOfLevels + 1];
@@ -72,7 +67,6 @@ public class GraphController {
 
         for(int i = 0; i < tripsPerLayer.length; i++) {
             spaceOnLayer[i] = 65 + (1835 - tripsPerLayer[i] * 10.5) / 2;
-            System.out.println(spaceOnLayer[i]);
         }
 
         /*Drawing level text*/
@@ -108,8 +102,6 @@ public class GraphController {
 //            auxList.add(list.get(i));
         for(ArrayList<Triplet> route: list) {
             for (int i = 0; i < route.size(); i++) {
-                System.out.println(route.size() + " " + numberOfLevels);
-                System.out.println("i " + i + " space: " + spaceOnLayer.length + " index: " + indexList.length );
                 x = spaceOnLayer[i] + (indexList[i] + 1) * 10.5;
                 y = 25 + levelSpace * (i + 1);
                 if (i == 0) {

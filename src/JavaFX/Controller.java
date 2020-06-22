@@ -3,15 +3,17 @@ package JavaFX;
 import Genetic.GeneticAlg;
 import Genetic.Individual;
 import Genetic.Triplet;
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
+import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
+import javafx.scene.chart.*;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.shape.Circle;
@@ -21,12 +23,29 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class Controller {
 
     private boolean algorithmRunned = false;
 
     private Individual bestIndividualAsValue;
+
+    private Individual bestIndividualInitially;
+
+    private GeneticAlg geneticAlg;
+
+    private int index;
+
+    private int counter = 0;
+
+    private int result;
+
+    private int generalResult = 0;
+
+    private double relocateRateVariable = 0.05;
+
+    private double joinRateVariable = 0.05;
 
     /*-----------File variables ----------*/
     @FXML
@@ -55,90 +74,79 @@ public class Controller {
     private TextField bestResultEver;
 
     @FXML
+    private TextField bestNumberOfBuses;
+
+    @FXML
     private TextField bestResultNow;
 
     @FXML
+    private BarChart<String , Number> routeChart;
+
+    @FXML
+    private CategoryAxis xAxis;
+
+    @FXML
+    private NumberAxis yAxis;
+
+    @FXML
     private AnchorPane mainPane;
-//
-//    @FXML
-//    private LineChart<Number, Number> resultsGraph;
-//
-//    @FXML
-//    public void initialize(){
-////        NumberAxis y = new NumberAxis(2500000, 1300000, 100000);
-////        y.setLabel("Value");
-//
-//        XYChart.Series<Number, Number> series = new XYChart.Series<>();
-//        series.getData().add(new XYChart.Data<>(1, 15000000));
-//        series.getData().add(new XYChart.Data<>(2, 17000000));
-//        series.getData().add(new XYChart.Data<>(3, 11000000));
-//        series.getData().add(new XYChart.Data<>(4, 19000000));
-//        series.getData().add(new XYChart.Data<>(5, 25000000));
-//        resultsGraph.getData().add(series);
-//
-//    }
+
 
     class Genetic extends Task{
 
         @Override
         protected String call() throws Exception {
-            if(!pathText.getText().equals("")){
-                errorMessage.setVisible(false);
+            geneticAlg = new GeneticAlg(pathText.getText(), 100);
+            bestIndividualInitially = geneticAlg.getBestIndividualInCurrentGeneration();
+            numberTrips.setText(String.valueOf(geneticAlg.getFileIO().getTrips()));
+            numberDepots.setText(String.valueOf(geneticAlg.getFileIO().getDepots()));
 
-                int counter = 0;
-                int numberOfGenerations = 500;
-                int currentGenerationBestCost = 0;
-                double join = 0.1;
-                double relocate = 0.1;
-                joinRate.setText(String.valueOf(join));
-                relocateRate.setText(String.valueOf(relocate));
+            for(int i = 0; i < 500; i++) {
+                index = i;
+                geneticAlg.run(joinRateVariable, relocateRateVariable);
+                result = geneticAlg.getBestIndividualInCurrentGeneration().getTotalCost();
 
-                GeneticAlg geneticAlg = new GeneticAlg(pathText.getText(), 100);
-                numberDepots.setText(String.valueOf(geneticAlg.getFileIO().getDepots()));
-                numberTrips.setText(String.valueOf(geneticAlg.getFileIO().getTrips()));
-
-                Individual individual;
-                Individual bestIndividual;
-
-                for(int i = 0; i < numberOfGenerations; i++) {
-                    try {
-                        generationNumber.setText(String.valueOf(i));
-                    } catch (Exception e){
-                        System.out.println("sunt aici");
-                        System.out.println(e.getMessage());
-                    }
-                    geneticAlg.run(join, relocate);
-                    individual = geneticAlg.getBestIndividualInCurrentGeneration();
-                    bestIndividual = geneticAlg.getBestIndividual();
-                    bestIndividualAsValue = bestIndividual;
-                    bestResultNow.setText(String.valueOf(individual.getTotalCost()));
-                    bestResultEver.setText(String.valueOf(bestIndividual.getTotalCost()));
-
-                    if(currentGenerationBestCost == 0)
-                        currentGenerationBestCost = individual.getTotalCost();
-                    else if(currentGenerationBestCost == individual.getTotalCost())
-                        counter++;
-                    else {
-                        counter = 0;
-                        currentGenerationBestCost = individual.getTotalCost();
-                    }
-
-                    if(counter == 10 && relocate < 0.5 && join < 0.5){
-                        join += 0.1;
-                        relocate += 0.1;
-                        counter = 0;
-                        joinRate.setText(String.valueOf(join));
-                        relocateRate.setText(String.valueOf(relocate));
-                    }
-                    if(counter == 10)
-                        break;
+                if(generalResult == 0)
+                    generalResult = result;
+                else  if(generalResult == result)
+                    counter ++;
+                else {
+                    counter = 0;
+                    generalResult = result;
                 }
 
+                if(counter == 10 && relocateRateVariable < 0.2 && joinRateVariable < 0.2){
+                    joinRateVariable += 0.05;
+                    relocateRateVariable += 0.05;
+                    counter = 0;
+                }
+
+                if(counter == 10)
+                    break;
+
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        joinRate.setText(String.valueOf(joinRateVariable));
+                        relocateRate.setText(String.valueOf(relocateRateVariable));
+                        generationNumber.setText(String.valueOf(index));
+                        bestResultNow.setText(String.valueOf(result));
+                        bestResultEver.setText(String.valueOf(geneticAlg.getBestIndividual().getTotalCost()));
+                        bestNumberOfBuses.setText(String.valueOf(geneticAlg.getBestIndividual().getRoutesMatrix().size()));
+                    }
+                });
+
             }
-            else errorMessage.setVisible(true);
 
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    populateChart();
+                }
+            });
+
+            bestIndividualAsValue = geneticAlg.getBestIndividual();
             algorithmRunned = true;
-
             return null;
         }
     }
@@ -168,8 +176,57 @@ public class Controller {
 
     @FXML
     void onStartClicked(ActionEvent event) {
-        Genetic genetic = new Genetic();
-        new Thread(genetic).start();
+        if(!pathText.getText().equals("")) {
+            clearFields();
+            Thread thread = new Thread(new Genetic());
+            thread.setDaemon(true);
+            thread.start();
+        }
+    }
+
+    private void clearFields(){
+        numberTrips.clear();
+        numberDepots.clear();
+        generationNumber.clear();
+        bestResultEver.clear();
+        bestResultNow.clear();
+        joinRate.clear();
+        relocateRate.clear();
+        bestNumberOfBuses.clear();
+        routeChart.getData().clear();
+    }
+
+    private void populateChart(){
+        xAxis.setLabel("Route size");
+        yAxis.setLabel("Number");
+
+        int[] initialList = getNumberOfTripsPerLevel(bestIndividualInitially);
+        int[] finalList = getNumberOfTripsPerLevel(bestIndividualAsValue);
+        ArrayList<String> lista = new ArrayList<>();
+
+        XYChart.Series<String, Number> series1 = new XYChart.Series<>();
+        series1.setName("Initial Individual");
+        XYChart.Series<String, Number> series2 = new XYChart.Series<>();
+        series2.setName("Final Individual");
+        for(int i = 0; i < initialList.length; i++){
+            if(initialList[i] != 0 || finalList[i] != 0) {
+                lista.add(String.valueOf(i));
+                series1.getData().add(new XYChart.Data<>(String.valueOf(i), initialList[i]));
+                series2.getData().add(new XYChart.Data<>(String.valueOf(i), finalList[i]));
+            }
+        }
+
+        routeChart.getData().add(series1);
+        routeChart.getData().add(series2);
+        xAxis.setCategories(FXCollections.observableArrayList(lista));
+    }
+
+    private int[] getNumberOfTripsPerLevel(Individual individual){
+        int[] sizeList = new int[10];
+        for(int i = 0; i < individual.getRoutesMatrix().size(); i++) {
+            sizeList[individual.getRoutesMatrix().get(i).size()]++;
+        }
+        return sizeList;
     }
 
     @FXML
