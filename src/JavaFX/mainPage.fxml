@@ -16,16 +16,16 @@
         <items>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="798.0" prefWidth="796.0">
                <children>
-                  <Button id="startButton" fx:id="startButton" layoutX="144.0" layoutY="695.0" mnemonicParsing="false" onAction="#onStartClicked" prefHeight="30.0" prefWidth="100.0" text="Start" />
+                  <Button id="startButton" fx:id="startButton" layoutX="102.0" layoutY="695.0" mnemonicParsing="false" onAction="#onStartClicked" prefHeight="30.0" prefWidth="100.0" text="Start" />
                   <TextField id="firstTextFIeld" fx:id="bestResultEver" disable="true" layoutX="295.0" layoutY="540.0" prefHeight="30.0" prefWidth="200.0" />
                   <TextField fx:id="numberDepots" disable="true" layoutX="295.0" layoutY="179.0" prefHeight="30.0" prefWidth="200.0" />
-                  <TextField fx:id="pathText" disable="true" layoutX="52.0" layoutY="70.0" prefHeight="31.0" prefWidth="446.0" AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="299.0" AnchorPane.topAnchor="70.0" />
+                  <TextField fx:id="pathText" disable="true" layoutX="52.0" layoutY="70.0" prefHeight="31.0" prefWidth="312.0" AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="241.0" AnchorPane.topAnchor="70.0" />
                   <Text layoutX="102.0" layoutY="201.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Number of depots:" textAlignment="CENTER">
                      <font>
                         <Font name="System Bold" size="18.0" />
                      </font>
                   </Text>
-                  <Button fx:id="addButton" layoutX="527.0" layoutY="70.0" mnemonicParsing="false" onAction="#onAddInstanceClicked" prefHeight="31.0" prefWidth="114.0" text="Add Instance" textAlignment="CENTER" AnchorPane.rightAnchor="154.0" AnchorPane.topAnchor="70.0" />
+                  <Button fx:id="addButton" layoutX="381.0" layoutY="70.0" mnemonicParsing="false" onAction="#onAddInstanceClicked" prefHeight="31.0" prefWidth="114.0" text="Add Instance" textAlignment="CENTER" AnchorPane.topAnchor="70.0" />
                   <TextField fx:id="numberTrips" disable="true" layoutX="295.0" layoutY="240.0" prefHeight="30.0" prefWidth="200.0" />
                   <TextField fx:id="joinRate" disable="true" layoutX="295.0" layoutY="299.0" prefHeight="30.0" prefWidth="200.0" />
                   <TextField fx:id="relocateRate" disable="true" layoutX="295.0" layoutY="364.0" prefHeight="30.0" prefWidth="200.0" />
@@ -66,13 +66,14 @@
                         <Font name="System Bold" size="24.0" />
                      </font>
                   </Text>
-                  <Button layoutX="333.0" layoutY="695.0" mnemonicParsing="false" onAction="#onShowGraphClicked" prefHeight="30.0" prefWidth="125.0" text="Show Graph" />
+                  <Button layoutX="239.0" layoutY="695.0" mnemonicParsing="false" onAction="#onShowGraphClicked" prefHeight="30.0" prefWidth="125.0" text="Show Graph" />
                   <Text layoutX="126.0" layoutY="625.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Best # of buses:" textAlignment="CENTER">
                      <font>
                         <Font name="System Bold" size="18.0" />
                      </font>
                   </Text>
                   <TextField id="firstTextFIeld" fx:id="bestNumberOfBuses" disable="true" layoutX="295.0" layoutY="602.0" prefHeight="30.0" prefWidth="200.0" />
+                  <Button fx:id="routeButton" layoutX="406.0" layoutY="695.0" mnemonicParsing="false" onAction="#onShowRoutesClicked" text="Show Routes" />
                </children>
             </AnchorPane>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="798.0" prefWidth="801.0">
@@ -85,6 +86,18 @@
                       <NumberAxis fx:id="yAxis" side="LEFT" />
                     </yAxis>
                   </BarChart>
+                  <Button fx:id="startGurobi" layoutX="343.0" layoutY="691.0" mnemonicParsing="false" onAction="#onStartGurobiClicked" text="Start Gurobi" />
+                  <TextField fx:id="resultGurobi" disable="true" layoutX="394.0" layoutY="627.0" />
+                  <Text layoutX="286.0" layoutY="648.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Result:">
+                     <font>
+                        <Font name="System Bold" size="18.0" />
+                     </font>
+                  </Text>
+                  <Text layoutX="296.0" layoutY="562.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Gurobi algorithm">
+                     <font>
+                        <Font name="System Bold" size="24.0" />
+                     </font>
+                  </Text>
                </children>
             </AnchorPane>
         </items>

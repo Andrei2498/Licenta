@@ -2,30 +2,18 @@ package JavaFX;
 
 import Genetic.Individual;
 import Genetic.Triplet;
-import javafx.concurrent.Task;
+
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Pane;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
-import javafx.stage.Stage;
-import javafx.util.Pair;
 
-import java.awt.*;
 import java.util.ArrayList;
 
 public class GraphController {
 
     private Individual individual;
-
-    private int numberOfLevels;
 
     @FXML
     private AnchorPane graphPane;
@@ -128,19 +116,4 @@ public class GraphController {
             }
         }
     }
-
-    class Graph extends Task{
-
-        @Override
-        protected String call() throws Exception{
-//            System.out.println("Sunt aici");
-//            ArrayList<ArrayList<Triplet>> list = individual.getRoutesMatrix();
-//            for(int j = 0; j < sizeList.length; j++)
-//                System.out.println(j+ ": " + sizeList[j]);
-//
-//            System.out.println("Number of lvls: " + numberOfLevels);
-            return null;
-        }
-    }
-
 }

@@ -3,6 +3,7 @@ package JavaFX;
 import Genetic.GeneticAlg;
 import Genetic.Individual;
 import Genetic.Triplet;
+import Gurobi.GurobiMain;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
@@ -22,6 +23,9 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -91,11 +95,17 @@ public class Controller {
     @FXML
     private AnchorPane mainPane;
 
+    /*---------------Gurobi variables-------------*/
+    @FXML
+    private TextField resultGurobi;
+
 
     class Genetic extends Task{
 
         @Override
         protected String call() throws Exception {
+            LocalDateTime now;
+            now = LocalDateTime.now();
             geneticAlg = new GeneticAlg(pathText.getText(), 100);
             bestIndividualInitially = geneticAlg.getBestIndividualInCurrentGeneration();
             numberTrips.setText(String.valueOf(geneticAlg.getFileIO().getTrips()));
@@ -147,6 +157,30 @@ public class Controller {
 
             bestIndividualAsValue = geneticAlg.getBestIndividual();
             algorithmRunned = true;
+
+            LocalDateTime end;
+            end = LocalDateTime.now();
+            float averageTime = 0;
+            averageTime += Duration.between(now, end).toMillis()/1000f;
+            System.out.println("Time: " + averageTime);
+            return null;
+        }
+    }
+
+    class Gurobi extends Task{
+
+        @Override
+        protected Object call() throws Exception {
+            GurobiMain gurobiMain = new GurobiMain();
+            gurobiMain.run(pathText.getText());
+
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    resultGurobi.setText(String.valueOf((int)(gurobiMain.objectiveValue)));
+                }
+            });
+
             return null;
         }
     }
@@ -167,6 +201,29 @@ public class Controller {
                 stage.show();
 
                 graphController.run();
+            } catch (Exception e){
+                e.printStackTrace();
+                System.out.println("Can't load new window");
+            }
+        }
+    }
+
+    @FXML
+    void onShowRoutesClicked(ActionEvent event){
+        if(algorithmRunned){
+            try {
+                FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("routePage.fxml"));
+                Parent root1 = fxmlLoader.load();
+
+                RouteController routeController = fxmlLoader.getController();
+                routeController.start(bestIndividualAsValue);
+
+                Stage stage = new Stage();
+                stage.setTitle("Route List");
+                stage.setScene(new Scene(root1));
+                stage.show();
+
+                routeController.run();
             } catch (Exception e){
                 e.printStackTrace();
                 System.out.println("Can't load new window");
@@ -242,5 +299,14 @@ public class Controller {
         }
         else
             errorMessage.setVisible(true);
+    }
+
+    @FXML
+    void onStartGurobiClicked(ActionEvent event){
+        if(!pathText.getText().equals("")){
+            Thread thread = new Thread(new Gurobi());
+            thread.setDaemon(true);
+            thread.start();
+        }
     }
 }
